@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
         useMaterial3: true,
+        fontFamily: 'Orbitron',
       ),
       home: const GameScreen(),
     );
@@ -73,32 +74,103 @@ class MainMenuOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'GRAVITY WARP',
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-              color: Colors.cyan,
-              fontWeight: FontWeight.bold,
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.black.withOpacity(0.7),
+            Colors.black.withOpacity(0.4),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Game title with glow effect
+            Container(
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.cyan.withOpacity(0.5),
+                    blurRadius: 20,
+                    spreadRadius: 5,
+                  ),
+                ],
+              ),
+              child: Text(
+                'GRAVITY WARP',
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  color: Colors.cyan,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 40,
+                  letterSpacing: 2,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 50),
-          ElevatedButton(
-            onPressed: () {
-              game.startGame();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.cyan,
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            const SizedBox(height: 20),
+            Text(
+              'TAP TO CHANGE GRAVITY',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                letterSpacing: 1.5,
+              ),
             ),
-            child: const Text(
-              'START GAME',
-              style: TextStyle(fontSize: 20),
+            const SizedBox(height: 50),
+            // High score display
+            ValueListenableBuilder(
+              valueListenable: game.highScoreNotifier,
+              builder: (context, highScore, _) {
+                if (highScore > 0) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 30),
+                    child: Text(
+                      'HIGH SCORE: $highScore',
+                      style: TextStyle(
+                        color: Colors.amber.withOpacity(0.8),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                }
+                return const SizedBox(height: 30);
+              },
             ),
-          ),
-        ],
+            // Start button with glow effect
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.cyan.withOpacity(0.5),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: ElevatedButton(
+                onPressed: () {
+                  game.startGame();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.cyan,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: const Text(
+                  'START GAME',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -114,39 +186,144 @@ class GameOverOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'GAME OVER',
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-              color: Colors.red,
-              fontWeight: FontWeight.bold,
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.black.withOpacity(0.7),
+            Colors.black.withOpacity(0.4),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Game over text with animation
+            TweenAnimationBuilder(
+              tween: Tween<double>(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 800),
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.scale(
+                    scale: value,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.red.withOpacity(0.5),
+                            blurRadius: 20,
+                            spreadRadius: 5,
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        'GAME OVER',
+                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 40,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'Score: ${game.score.toInt()}',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              color: Colors.white,
+            const SizedBox(height: 30),
+            // Score with animation
+            TweenAnimationBuilder(
+              tween: Tween<double>(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeOutBack,
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, 20 * (1 - value)),
+                    child: Text(
+                      'SCORE: ${game.score.toInt()}',
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-          ),
-          const SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: () {
-              game.resetGame();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.cyan,
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            const SizedBox(height: 10),
+            // High score display
+            ValueListenableBuilder(
+              valueListenable: game.highScoreNotifier,
+              builder: (context, highScore, _) {
+                return TweenAnimationBuilder(
+                  tween: Tween<double>(begin: 0, end: 1),
+                  duration: const Duration(milliseconds: 800),
+                  curve: Curves.easeOutBack,
+                  builder: (context, value, child) {
+                    return Opacity(
+                      opacity: value,
+                      child: Text(
+                        'HIGH SCORE: $highScore',
+                        style: TextStyle(
+                          color: Colors.amber.withOpacity(0.8),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
             ),
-            child: const Text(
-              'PLAY AGAIN',
-              style: TextStyle(fontSize: 18),
+            const SizedBox(height: 40),
+            // Play again button with glow effect
+            TweenAnimationBuilder(
+              tween: Tween<double>(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.elasticOut,
+              builder: (context, value, child) {
+                return Transform.scale(
+                  scale: value,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.cyan.withOpacity(0.5),
+                          blurRadius: 10,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        game.resetGame();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.cyan,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: const Text(
+                        'PLAY AGAIN',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -162,46 +339,87 @@ class PauseMenuOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'PAUSED',
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.black.withOpacity(0.7),
+            Colors.black.withOpacity(0.4),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'PAUSED',
+              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 40,
+                letterSpacing: 2,
+              ),
             ),
-          ),
-          const SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: () {
-              game.resumeGame();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.cyan,
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            const SizedBox(height: 20),
+            Text(
+              'SCORE: ${game.score.toInt()}',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: Colors.white.withOpacity(0.8),
+              ),
             ),
-            child: const Text(
-              'RESUME',
-              style: TextStyle(fontSize: 18),
+            const SizedBox(height: 40),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.cyan.withOpacity(0.5),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: ElevatedButton(
+                onPressed: () {
+                  game.resumeGame();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.cyan,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: const Text(
+                  'RESUME',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              game.resetGame();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                game.resetGame();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: const Text(
+                'MAIN MENU',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ),
-            child: const Text(
-              'MAIN MENU',
-              style: TextStyle(fontSize: 18),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -217,36 +435,136 @@ class GameUIOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ValueListenableBuilder(
-                valueListenable: game.scoreNotifier,
-                builder: (context, value, child) {
-                  return Text(
-                    'Score: ${value.toInt()}',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Score with glowing effect
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.cyan.withOpacity(0.5), width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.cyan.withOpacity(0.3),
+                        blurRadius: 8,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: ValueListenableBuilder(
+                    valueListenable: game.scoreNotifier,
+                    builder: (context, value, child) {
+                      return Text(
+                        'SCORE: ${value.toInt()}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                // Pause button with glowing effect
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.cyan.withOpacity(0.3),
+                        blurRadius: 8,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        game.pauseGame();
+                      },
+                      customBorder: const CircleBorder(),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.black.withOpacity(0.5),
+                          border: Border.all(color: Colors.cyan.withOpacity(0.5), width: 2),
+                        ),
+                        child: const Icon(
+                          Icons.pause,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
                     ),
-                  );
-                },
+                  ),
+                ),
+              ],
+            ),
+            // Direction indicators
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Directional hints that appear briefly
+                    ValueListenableBuilder(
+                      valueListenable: game.scoreNotifier,
+                      builder: (context, score, _) {
+                        // Only show hints at the beginning
+                        if (score < 100) {
+                          return Opacity(
+                            opacity: (100 - score) / 100,
+                            child: Column(
+                              children: [
+                                const Icon(
+                                  Icons.arrow_upward,
+                                  color: Colors.white30,
+                                  size: 40,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Icon(
+                                      Icons.arrow_back,
+                                      color: Colors.white30,
+                                      size: 40,
+                                    ),
+                                    SizedBox(width: 40),
+                                    Icon(
+                                      Icons.arrow_forward,
+                                      color: Colors.white30,
+                                      size: 40,
+                                    ),
+                                  ],
+                                ),
+                                const Icon(
+                                  Icons.arrow_downward,
+                                  color: Colors.white30,
+                                  size: 40,
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ],
+                ),
               ),
-              IconButton(
-                icon: const Icon(Icons.pause, color: Colors.white),
-                onPressed: () {
-                  game.pauseGame();
-                },
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
