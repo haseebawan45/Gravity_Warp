@@ -112,7 +112,7 @@ class MainMenuOverlay extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'TAP TO CHANGE GRAVITY',
+              'USE ARROWS TO CHANGE GRAVITY',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.8),
                 letterSpacing: 1.5,
@@ -207,7 +207,7 @@ class GameOverOverlay extends StatelessWidget {
               duration: const Duration(milliseconds: 800),
               builder: (context, value, child) {
                 return Opacity(
-                  opacity: value,
+                  opacity: value.clamp(0.0, 1.0),
                   child: Transform.scale(
                     scale: value,
                     child: Container(
@@ -242,7 +242,7 @@ class GameOverOverlay extends StatelessWidget {
               curve: Curves.easeOutBack,
               builder: (context, value, child) {
                 return Opacity(
-                  opacity: value,
+                  opacity: value.clamp(0.0, 1.0),
                   child: Transform.translate(
                     offset: Offset(0, 20 * (1 - value)),
                     child: Text(
@@ -267,7 +267,7 @@ class GameOverOverlay extends StatelessWidget {
                   curve: Curves.easeOutBack,
                   builder: (context, value, child) {
                     return Opacity(
-                      opacity: value,
+                      opacity: value.clamp(0.0, 1.0),
                       child: Text(
                         'HIGH SCORE: $highScore',
                         style: TextStyle(
@@ -289,7 +289,7 @@ class GameOverOverlay extends StatelessWidget {
               curve: Curves.elasticOut,
               builder: (context, value, child) {
                 return Transform.scale(
-                  scale: value,
+                  scale: value.clamp(0.0, 1.0),
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
@@ -435,13 +435,15 @@ class GameUIOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Stack(
+      children: [
+        // Top score area
+        Positioned(
+          top: 16,
+          left: 16,
+          right: 16,
+          child: SafeArea(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Score with glowing effect
@@ -510,60 +512,85 @@ class GameUIOverlay extends StatelessWidget {
                 ),
               ],
             ),
-            // Direction indicators
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Directional hints that appear briefly
-                    ValueListenableBuilder(
-                      valueListenable: game.scoreNotifier,
-                      builder: (context, score, _) {
-                        // Only show hints at the beginning
-                        if (score < 100) {
-                          return Opacity(
-                            opacity: (100 - score) / 100,
-                            child: Column(
-                              children: [
-                                const Icon(
-                                  Icons.arrow_upward,
-                                  color: Colors.white30,
-                                  size: 40,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(
-                                      Icons.arrow_back,
-                                      color: Colors.white30,
-                                      size: 40,
-                                    ),
-                                    SizedBox(width: 40),
-                                    Icon(
-                                      Icons.arrow_forward,
-                                      color: Colors.white30,
-                                      size: 40,
-                                    ),
-                                  ],
-                                ),
-                                const Icon(
-                                  Icons.arrow_downward,
-                                  color: Colors.white30,
-                                  size: 40,
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                  ],
-                ),
+          ),
+        ),
+        
+        // Control buttons at bottom
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 20,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Direction pad
+              Column(
+                children: [
+                  // Up button
+                  _buildDirectionButton(
+                    Icons.arrow_upward,
+                    () => game.changeGravity(GravityDirection.up),
+                  ),
+                  const SizedBox(height: 8),
+                  // Left, Right buttons in a row
+                  Row(
+                    children: [
+                      _buildDirectionButton(
+                        Icons.arrow_back,
+                        () => game.changeGravity(GravityDirection.left),
+                      ),
+                      const SizedBox(width: 60),
+                      _buildDirectionButton(
+                        Icons.arrow_forward,
+                        () => game.changeGravity(GravityDirection.right),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  // Down button
+                  _buildDirectionButton(
+                    Icons.arrow_downward,
+                    () => game.changeGravity(GravityDirection.down),
+                  ),
+                ],
               ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildDirectionButton(IconData icon, VoidCallback onPressed) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.cyan.withOpacity(0.3),
+            blurRadius: 8,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          customBorder: const CircleBorder(),
+          child: Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.black.withOpacity(0.4),
+              border: Border.all(color: Colors.cyan.withOpacity(0.7), width: 2),
             ),
-          ],
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 36,
+            ),
+          ),
         ),
       ),
     );

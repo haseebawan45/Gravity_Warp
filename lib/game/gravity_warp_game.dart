@@ -13,7 +13,7 @@ import 'package:game_warp/game/components/background_effect.dart';
 enum GravityDirection { up, down, left, right }
 enum GameState { initializing, playing, paused, gameOver }
 
-class GravityWarpGame extends FlameGame with TapCallbacks, HasCollisionDetection {
+class GravityWarpGame extends FlameGame with HasCollisionDetection {
   // Game components
   late Player player;
   late BackgroundEffect backgroundEffect;
@@ -265,36 +265,6 @@ class GravityWarpGame extends FlameGame with TapCallbacks, HasCollisionDetection
         velocity: velocity,
       ),
     );
-  }
-  
-  @override
-  void onTapDown(TapDownEvent event) {
-    if (_gameState != GameState.playing) return;
-    
-    // Get tap position relative to player
-    final tapPosition = event.canvasPosition;
-    final playerPosition = player.position;
-    
-    // Determine which direction to change gravity
-    final xDiff = tapPosition.x - playerPosition.x;
-    final yDiff = tapPosition.y - playerPosition.y;
-    
-    // Change gravity based on tap direction
-    if (xDiff.abs() > yDiff.abs()) {
-      // Horizontal direction
-      if (xDiff > 0) {
-        changeGravity(GravityDirection.right);
-      } else {
-        changeGravity(GravityDirection.left);
-      }
-    } else {
-      // Vertical direction
-      if (yDiff > 0) {
-        changeGravity(GravityDirection.down);
-      } else {
-        changeGravity(GravityDirection.up);
-      }
-    }
   }
   
   void startGame() {
